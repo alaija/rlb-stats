@@ -8,17 +8,23 @@ import (
 
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
+	"github.com/go-chi/render"
 	"github.com/go-pkgz/rest"
 	"github.com/go-pkgz/rest/logger"
 )
 
-// StatsRecord for stats
-type StatsRecord struct {
-	ID       string    `json:"id,omitempty"`
-	FromIP   string    `json:"from_ip"`
-	TS       time.Time `json:"ts,omitempty"`
-	Fname    string    `json:"fname"`
-	DestHost string    `json:"dest"`
+// StatRecord for stats
+type StatRecord struct {
+	ID       string     `json:"id,omitempty"`
+	FromIP   string     `json:"from_ip"`
+	TS       *time.Time `json:"ts,omitempty"`
+	Fname    string     `json:"fname"`
+	DestHost string     `json:"dest"`
+}
+
+// Render for StatRecord
+func (s *StatRecord) Render(w http.ResponseWriter, r *http.Request) error {
+	return nil
 }
 
 // RLBStatsServer - rlb-stats server
@@ -48,11 +54,18 @@ func (s *RLBStatsServer) Run() {
 	l := logger.New(logger.Flags(logger.All), logger.Prefix("[INFO]"))
 	r.Use(l.Handler)
 
-	r.Post("/", s.processStats)
+	r.Route("/", func(r chi.Router) {
+		r.Post("/", s.processStats)
+	})
 
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", s.port), r))
 }
 
 func (s *RLBStatsServer) processStats(w http.ResponseWriter, r *http.Request) {
-
+	var record StatRecord
+	if err := render.DecodeJSON(r.Body, &record); err != nil {
+		rest.SendErrorJSON(w, r, http.StatusBadRequest, err, "Bad Request")
+		return
+	}
+	render.Render(w, r, &record)
 }

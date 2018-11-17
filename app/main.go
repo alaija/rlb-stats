@@ -1,18 +1,21 @@
 package main
-import(
-	"log"
 
-	"github.com/jessevdk/go-flags"
+import (
+	"log"
+	"os"
+
 	"github.com/hashicorp/logutils"
+	"github.com/jessevdk/go-flags"
 
 	"github.com/alaija/rlb-stats/app/server"
 )
+
 var opts struct {
-	Port 	int		`short:"p" long:"port" env:"PORT" default:"7070" description:"port"`	Dbg      bool          `long:"dbg" env:"DEBUG" description:"debug mode"`
-	Dbg 	bool	`long:"dbg" env:"DEBUG" description:"debug mode"`
+	Port int  `short:"p" long:"port" env:"PORT" default:"7070" description:"port"`
+	Dbg  bool `long:"dbg" env:"DEBUG" description:"debug mode"`
 }
 
-var revision = "unknown"
+var revision string
 
 func main() {
 	log.Printf("RLB-stats - %s", revision)
@@ -21,8 +24,8 @@ func main() {
 	}
 
 	setupLog(opts.Dbg)
-	
-	server.NewRLBStatsServer(opts.Port, revision).Run()
+
+	server.NewRLBStatsServer(revision, opts.Port).Run()
 }
 
 func setupLog(dbg bool) {
