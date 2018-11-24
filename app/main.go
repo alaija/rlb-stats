@@ -19,6 +19,7 @@ var revision string
 
 func main() {
 	log.Printf("RLB-stats - %s", revision)
+
 	if _, err := flags.Parse(&opts); err != nil {
 		os.Exit(1)
 	}
@@ -41,5 +42,6 @@ func setupLog(dbg bool) {
 		log.SetFlags(log.Ldate | log.Ltime | log.Lmicroseconds | log.Lshortfile)
 		filter.MinLevel = logutils.LogLevel("DEBUG")
 	}
+
 	log.SetOutput(filter)
 }
