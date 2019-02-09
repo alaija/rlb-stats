@@ -1,6 +1,7 @@
 package storage
 
 import (
+	"log"
 	"sync"
 	"time"
 )
@@ -53,7 +54,10 @@ func (s *StatsStorage) activateAggregator(every time.Duration) {
 						Fname:    r.Fname,
 						Count:    r.Count,
 					}
-					s.bolt.Save(agr, now)
+					err := s.bolt.Save(agr, now)
+					if err != nil {
+						log.Printf("[DEBUG] save to bolt failed, %s", err)
+					}
 				}
 			}
 		}

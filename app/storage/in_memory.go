@@ -50,7 +50,7 @@ func (m *InMemory) Add(host string, fname string) {
 
 	request, ok := destination.Requests[fname]
 
-	if ok == false {
+	if !ok {
 		request = &FileRequest{fname, 0}
 		destination.Requests[fname] = request
 	}
@@ -66,7 +66,7 @@ func (m *InMemory) Delete(host string) error {
 
 	_, ok := m.destinations[host]
 
-	if ok == false {
+	if !ok {
 		return errors.New("Destination can't be found")
 	}
 
@@ -82,7 +82,7 @@ func (m *InMemory) Clear(host string) error {
 
 	destination, ok := m.destinations[host]
 
-	if ok == false {
+	if !ok {
 		return errors.New("Destination can't be found")
 	}
 
