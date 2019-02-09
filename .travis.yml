@@ -9,8 +9,12 @@ before_install:
   - go get github.com/mattn/goveralls
   - go get gopkg.in/alecthomas/gometalinter.v2
   - $GOPATH/bin/gometalinter.v2 --install
+env:
+  - GO111MODULE=on
+
+install: true
 
 script:
-  - go test ./...
+  - go test -v -mod=vendor ./...
   - $GOPATH/bin/gometalinter.v2 --exclude=test --exclude=mock --exclude=vendor --exclude=maligned ./...
   - $GOPATH/bin/goveralls -service=travis-ci
