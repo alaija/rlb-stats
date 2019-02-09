@@ -40,7 +40,7 @@ func (m *InMemory) Add(host string, fname string) {
 
 	destination, ok := m.destinations[host]
 
-	if ok == false {
+	if !ok {
 		m.destinations[host] = &Destination{
 			host,
 			map[string]*FileRequest{fname: &FileRequest{fname, 1}},
@@ -98,7 +98,7 @@ func (m *InMemory) Get(host string) (destination *Destination, err error) {
 
 	destination, ok := m.destinations[host]
 
-	if ok == false {
+	if !ok {
 		return nil, errors.New("Destination can't be found")
 	}
 
