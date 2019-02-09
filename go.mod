@@ -1,6 +1,8 @@
 module github.com/alaija/rlb-stats
 
 require (
+	github.com/boltdb/bolt v1.3.1 // indirect
+	github.com/coreos/bbolt v1.3.0
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/go-chi/chi v3.3.3+incompatible
 	github.com/go-chi/render v1.0.1
@@ -11,5 +13,6 @@ require (
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/stretchr/testify v1.2.2
 	golang.org/x/net v0.0.0-20181114220301-adae6a3d119a // indirect
+	golang.org/x/sys v0.0.0-20190204203706-41f3e6584952 // indirect
 	golang.org/x/text v0.3.0 // indirect
 )
