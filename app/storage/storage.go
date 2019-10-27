@@ -15,18 +15,15 @@ type StatRecord struct {
 // StatsStorage is storage
 type StatsStorage struct {
 	sync.Mutex
-	inMemory *InMemory
-	bolt     *Bolt
+	inMemory   InMemoryStore
+	persistent PersistentStore
 }
 
 // NewStorage is new
-func NewStorage(aggregateSessionDuration time.Duration, dbFile string, durationBuckets []string) (store *StatsStorage, err error) {
+func NewStorage(aggregateSessionDuration time.Duration, inMemory InMemoryStore, persistent PersistentStore) (store *StatsStorage, err error) {
 	store = &StatsStorage{}
-	store.inMemory = NewInMemory()
-	store.bolt, err = NewBolt(dbFile, durationBuckets)
-	if err != nil {
-		return nil, err
-	}
+	store.inMemory = inMemory
+	store.persistent = persistent
 	store.activateAggregator(aggregateSessionDuration)
 
 	return store, nil
@@ -35,8 +32,11 @@ func NewStorage(aggregateSessionDuration time.Duration, dbFile string, durationB
 // Save is save
 func (s *StatsStorage) Save(record *StatRecord) {
 	s.Lock()
-	s.inMemory.Add(record.DestHost, record.Fname)
-	s.Unlock()
+	defer s.Unlock()
+	err := s.inMemory.Add(record.DestHost, record.Fname)
+	if err != nil {
+		log.Printf("[DEBUG] save in memory failed, %s", err)
+	}
 }
 
 // activateCleaner runs periodic aggregation from in memory store to bolt
@@ -44,9 +44,8 @@ func (s *StatsStorage) activateAggregator(every time.Duration) {
 	ticker := time.NewTicker(every)
 	now := time.Now()
 	go func() {
-		s.Lock()
-		defer s.Unlock()
 		for range ticker.C {
+			s.Lock()
 			for _, d := range s.inMemory.Pop() {
 				for _, r := range d.Requests {
 					agr := StatAggregation{
@@ -54,12 +53,13 @@ func (s *StatsStorage) activateAggregator(every time.Duration) {
 						Fname:    r.Fname,
 						Count:    r.Count,
 					}
-					err := s.bolt.Save(agr, now)
+					err := s.persistent.Save(agr, now)
 					if err != nil {
 						log.Printf("[DEBUG] save to bolt failed, %s", err)
 					}
 				}
 			}
+			s.Unlock()
 		}
 	}()
 }

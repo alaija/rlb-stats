@@ -7,41 +7,38 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-const (
-	fname  = "123.mp3"
-	fname2 = "321.mp3"
-	host   = "https://test.com"
-	host2  = "https://test.com"
-)
-
 // creates inMemory and adds two records to a destination
 func prepareInMemory(t *testing.T) *InMemory {
 
 	s := NewInMemory()
 
-	s.Add(host, fname)
+	err := s.Add(host, fname)
+	assert.NoError(t, err)
 	d, err := s.Get(host)
 	assert.NoError(t, err)
 	assert.Equal(t, 1, len(d.Requests))
 	assert.Equal(t, 1, d.Requests[fname].Count)
 
-	s.Add(host, fname)
+	err = s.Add(host, fname)
+	assert.NoError(t, err)
 	d, err = s.Get(host)
 	assert.NoError(t, err)
 	assert.Equal(t, 1, len(d.Requests))
 	assert.Equal(t, 2, d.Requests[fname].Count)
 
-	s.Add(host, fname2)
+	err = s.Add(host, fname2)
+	assert.NoError(t, err)
 	d, err = s.Get(host)
 	assert.NoError(t, err)
 	assert.Equal(t, 2, len(d.Requests))
 	assert.Equal(t, 1, d.Requests[fname2].Count)
 
-	s.Add(host2, fname2)
+	err = s.Add(host2, fname2)
+	assert.NoError(t, err)
 	d, err = s.Get(host2)
 	assert.NoError(t, err)
-	assert.Equal(t, 2, len(d.Requests))
-	assert.Equal(t, 2, d.Requests[fname2].Count)
+	assert.Equal(t, 1, len(d.Requests))
+	assert.Equal(t, 1, d.Requests[fname2].Count)
 
 	return s
 }
@@ -78,7 +75,7 @@ func Test_InMemory_Pop(t *testing.T) {
 	s := prepareInMemory(t)
 
 	dests := s.Pop()
-	assert.Equal(t, 1, len(dests))
+	assert.Equal(t, 2, len(dests))
 	dest := dests[0]
 	assert.Equal(t, 2, len(dest.Requests))
 	assert.Equal(t, 2, dest.Requests[fname].Count)

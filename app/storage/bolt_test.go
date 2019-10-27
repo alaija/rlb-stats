@@ -8,37 +8,44 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-const testDB = "test-bolt.db"
+const (
+	bucket1m  = "1m"
+	bucket15m = "15m"
+	bucket1h  = "1h"
+	bucket1d  = "24h"
+
+	testDB = "test-bolt.db"
+)
 
 // creates new boltdb
 func prepare(t *testing.T) *Bolt {
 	os.Remove(testDB)
 
 	buckets := []string{
-		"1m",
-		"15m",
-		"1h",
-		"24h",
+		bucket1m,
+		bucket15m,
+		bucket1h,
+		bucket1d,
 	}
 
 	boltStore, err := NewBolt(testDB, buckets)
 	assert.Nil(t, err)
 
 	agr := StatAggregation{
-		Fname:    "123.mp3",
-		DestHost: "https://test.com",
+		Fname:    fname,
+		DestHost: host,
 		Count:    1,
 	}
 
 	agr2 := StatAggregation{
-		Fname:    "124.mp3",
-		DestHost: "https://test.com",
+		Fname:    fname1,
+		DestHost: host,
 		Count:    2,
 	}
 
 	agr3 := StatAggregation{
-		Fname:    "1.mp3",
-		DestHost: "https://test.ru",
+		Fname:    fname2,
+		DestHost: host1,
 		Count:    3,
 	}
 
@@ -61,7 +68,7 @@ func Test_Bolt_All(t *testing.T) {
 
 	result, err := s.Get(
 		resultAggregation,
-		"1m",
+		bucket1m,
 		time.Date(2017, 12, 20, 14, 0, 0, 0, time.Local),
 		time.Date(2017, 12, 20, 16, 0, 0, 0, time.Local),
 	)
@@ -71,7 +78,7 @@ func Test_Bolt_All(t *testing.T) {
 
 	result, err = s.Get(
 		resultAggregation,
-		"15m",
+		bucket15m,
 		time.Date(2017, 12, 20, 14, 0, 0, 0, time.Local),
 		time.Date(2017, 12, 20, 16, 0, 0, 0, time.Local),
 	)
@@ -81,7 +88,7 @@ func Test_Bolt_All(t *testing.T) {
 
 	result, err = s.Get(
 		resultAggregation,
-		"15m",
+		bucket15m,
 		time.Date(2017, 12, 20, 0, 0, 0, 0, time.Local),
 		time.Date(2017, 12, 20, 14, 0, 0, 0, time.Local),
 	)
@@ -90,7 +97,7 @@ func Test_Bolt_All(t *testing.T) {
 	assert.Equal(t, 1, result[0].Count)
 	result, err = s.Get(
 		resultAggregation,
-		"24h",
+		bucket1d,
 		time.Date(2017, 12, 20, 0, 0, 0, 0, time.Local),
 		time.Date(2017, 12, 21, 0, 0, 0, 0, time.Local),
 	)
@@ -104,11 +111,11 @@ func Test_Bolt_Fname(t *testing.T) {
 	s := prepare(t)
 
 	resultAggregation := StatAggregation{}
-	resultAggregation.Fname = "123.mp3"
+	resultAggregation.Fname = fname
 
 	result, err := s.Get(
 		resultAggregation,
-		"1m",
+		bucket1m,
 		time.Date(2017, 12, 20, 0, 0, 0, 0, time.Local),
 		time.Date(2017, 12, 21, 0, 0, 0, 0, time.Local),
 	)
@@ -122,11 +129,11 @@ func Test_Bolt_DestHost(t *testing.T) {
 	s := prepare(t)
 
 	resultAggregation := StatAggregation{}
-	resultAggregation.DestHost = "https://test.ru"
+	resultAggregation.DestHost = host1
 
 	result, err := s.Get(
 		resultAggregation,
-		"1m",
+		bucket1m,
 		time.Date(2017, 12, 20, 0, 0, 0, 0, time.Local),
 		time.Date(2017, 12, 21, 0, 0, 0, 0, time.Local),
 	)

@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/coreos/bbolt"
+	bolt "github.com/coreos/bbolt"
 )
 
 const (
@@ -53,6 +53,11 @@ const (
 	// TimeFormat represents time format for key of records
 	TimeFormat = "2006-01-02 15:04"
 )
+
+type PersistentStore interface {
+	Save(agr StatAggregation, currentTime time.Time) error
+	Get(agr StatAggregation, bucketName string, from, to time.Time) (agrs []StatAggregation, err error)
+}
 
 // Bolt describes boltd storage
 type Bolt struct {

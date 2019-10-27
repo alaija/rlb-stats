@@ -5,6 +5,11 @@ import (
 	"sync"
 )
 
+type InMemoryStore interface {
+	Add(host string, fname string) error
+	Pop() (destinations []Destination)
+}
+
 // InMemory struct describes Destination storage
 // the key is destination host
 type InMemory struct {
@@ -34,7 +39,7 @@ func NewInMemory() *InMemory {
 }
 
 // Add sets file request to storage by destination host
-func (m *InMemory) Add(host string, fname string) {
+func (m *InMemory) Add(host string, fname string) error {
 	m.Lock()
 	defer m.Unlock()
 
@@ -45,7 +50,7 @@ func (m *InMemory) Add(host string, fname string) {
 			host,
 			map[string]*FileRequest{fname: &FileRequest{fname, 1}},
 		}
-		return
+		return nil
 	}
 
 	request, ok := destination.Requests[fname]
@@ -56,6 +61,7 @@ func (m *InMemory) Add(host string, fname string) {
 	}
 
 	request.Count++
+	return nil
 }
 
 // Delete removes destination from storage by host
