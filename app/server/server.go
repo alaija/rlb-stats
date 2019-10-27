@@ -1,12 +1,12 @@
 package server
 
 import (
-	"context"
 	"fmt"
 	"log"
 	"net/http"
-	"sync"
 	"time"
+	"sync"
+	"context"
 
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"

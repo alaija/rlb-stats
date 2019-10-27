@@ -7,10 +7,16 @@ go_import_path: github.com/alaija/rlb-stats
 
 before_install:
   - go get github.com/mattn/goveralls
-  - go get gopkg.in/alecthomas/gometalinter.v2
-  - $GOPATH/bin/gometalinter.v2 --install
+  - curl -sfL https://install.goreleaser.com/github.com/golangci/golangci-lint.sh | sh -s -- -b $(go env GOPATH)/bin v1.13.2
+
+env:
+  - GO111MODULE=on
+
+install: true
 
 script:
-  - go test ./...
-  - $GOPATH/bin/gometalinter.v2 --exclude=test --exclude=mock --exclude=vendor --exclude=maligned ./...
+  - go get ./...
+  - go mod vendor
+  - go test -v -mod=vendor ./...
+  - golangci-lint run --tests=false || travis_terminate 1
   - $GOPATH/bin/goveralls -service=travis-ci

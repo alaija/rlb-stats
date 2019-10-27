@@ -27,20 +27,20 @@ func Test_ProcessStats(t *testing.T) {
 	}
 
 	data, err := json.Marshal(&reqrec)
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 
 	client := &http.Client{Timeout: 5 * time.Second}
 
 	resp, err := client.Post(ts.URL+"/stats", "application/json", bytes.NewReader([]byte{}))
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 	assert.Equal(t, http.StatusBadRequest, resp.StatusCode)
 
 	resp, err = client.Post(ts.URL+"/stats", "application/json", bytes.NewReader(data))
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 
 	resprec := LogRecord{}
 	err = json.NewDecoder(resp.Body).Decode(&resprec)
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 	assert.Equal(t, reqrec, resprec)
 }
